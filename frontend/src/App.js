@@ -1,24 +1,59 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import { upload } from "./constants/api/axios";
 
 function App() {
+
+
+  const [file, setFile] = useState(null);
+  const [path, setPath] = useState("")
+  const handleChange = (e) =>{
+    setPath(e.target.value)
+  }
+
+  const onChange = (e) =>{
+setFile(e.target.files[0])
+console.log(file)
+console.log(e.target.files[0]
+  )
+  }
+  const handleClick = async (e) =>{
+e.preventDefault();
+
+if(file!= null) {
+  var reader = new FileReader();
+  reader.readAsDataURL(file);
+  
+  reader.onload = async function () {
+    console.log(reader.result);
+
+const {data, status}  = await upload({file : reader.result, fileName : file.name, path})
+console.log(file)
+
+console.log(data)
+
+
+  };
+  reader.onerror = function (error) {
+    console.log('Error: ', error);
+  };
+
+
+
+
+}
+
+  }
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+   <>
+   <input type="file"  name="file" onChange={onChange} />
+   <input type="text" onChange={handleChange} value={path} />
+
+
+<button onClick={handleClick}>Click</button>
+
+   </>
   );
 }
 
