@@ -4,6 +4,8 @@ const { createToken } = require("../common/jwt");
 const STATUS = require("../config/Constants");
 const User = require("../db/models/User");
 const bcrypt = require("bcrypt");
+const auth = require("../middlewares/auth");
+const { dataRes } = require("../common/res");
 
 app.post("/signUp", async (req, res) => {
   try {
@@ -53,7 +55,16 @@ const token = createToken({id : user._id, email}, '24h');
   }
 });
 
+app.use(auth)
+app.post("/test",async (req, res)=>{
+  try {
+    
+dataRes(res,{id : req.USER.id},200,"done")
 
+  } catch (err) {
+    
+  }
+})
 
 
 module.exports = app;

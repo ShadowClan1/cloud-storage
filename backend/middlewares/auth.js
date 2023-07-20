@@ -9,7 +9,9 @@ const {id} = decodeToken(auth_token);
 
 if(id != user_id) return res.status(STATUS.FORBIDDEN).json({success : false, message : "authentication failed"})
 
-
+else req.USER = {id}
 
     next();
 }
+
+module.exports = auth

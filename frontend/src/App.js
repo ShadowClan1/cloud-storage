@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { upload } from "./constants/api/axios";
-
+import {BrowserRouter, Route, Routes} from "react-router-dom"
+import Login from "./pages/Login";
 function App() {
 
 
@@ -46,14 +47,32 @@ console.log(data)
 
 
   return (
+   <BrowserRouter>
    <>
-   <input type="file"  name="file" onChange={onChange} />
+   {/* <input type="file"  name="file" onChange={onChange} />
    <input type="text" onChange={handleChange} value={path} />
+   
+   
+<button onClick={handleClick}>Click</button> */}
 
 
-<button onClick={handleClick}>Click</button>
+
+<Routes>
+
+<Route path="/login" element={<Login/>}/>
+
+
+
+
+</Routes>
+
+
+
+
+
 
    </>
+   </BrowserRouter>
   );
 }
 
