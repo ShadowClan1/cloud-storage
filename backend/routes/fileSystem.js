@@ -1,6 +1,8 @@
 const app = require("express").Router();
 const fss = require("fs/promises");
 const auth = require("../middlewares/auth");
+const jwt = require("jsonwebtoken");
+const secret_key = "Hare krishna";
 const {
   dataRes,
   errorRes,
@@ -14,10 +16,76 @@ const STATUS = require("../config/Constants");
 const BASE_PATH = BASE_DIR + "/public/";
 
 // app.use(auth);
+
+app.post("/getDirContent", async (req, res) => {
+  try {
+    let { path } = req.body;
+    let userId = req?.USER?.id;
+    userId = "64b6ae694fa46cd685e1d041";
+    const BASE_PATH = BASE_DIR + "/public/";
+    const userPath = userId + "/" + path;
+    const fullPath = BASE_PATH + userPath;
+    const data = await fss.readdir(fullPath);
+    console.log(process.cwd());
+    const dirContent = [];
+    for (let i = 0; i < data.length; i++) {
+      let obj = {};
+      obj.name = data[i];
+      const stat = await fss.stat(fullPath + "/" + data[i]);
+      if (stat.isFile()) obj.type = "FILE";
+      if (stat.isDirectory()) obj.type = "DIR";
+      obj.size = stat.size;
+      obj.birthtime = stat.birthtime;
+
+      dirContent.push(obj);
+    }
+
+    okRes(res, dirContent);
+  } catch (err) {
+    console.log(err);
+    notFoundRes(res, "not found");
+  }
+});
+
+app.post("/createDir", async (req, res) => {
+  try {
+    let { path } = req.body;
+    // let userId = req.USER.id
+    let userId = "64b6ae694fa46cd685e1d041";
+    const userPath = userId + "/" + path;
+    const fullPath = BASE_PATH + userPath;
+    const fs = await fss.mkdir(fullPath);
+
+    okRes(res, { success: true });
+  } catch (err) {
+    console.log(err);
+    badReqRes(res, err);
+  }
+});
+
+app.post("/delete", async (req, res) => {
+  try {
+    let { path, type, recursive } = req.body;
+    if (!recursive) recursive = true;
+    // let userId = req.USER.id
+    let userId = "64b6ae694fa46cd685e1d041";
+    const userPath = userId + "/" + path;
+    const fullPath = BASE_PATH + userPath;
+    console.log(fullPath);
+
+    await fss.rm(fullPath, { recursive, force: recursive });
+
+    okRes(res, { success: true });
+  } catch (err) {
+    badReqRes(res, err, "Cannot delete dir");
+  }
+});
+
 app.post("/upload", async (req, res) => {
   try {
     let { file, fileName, fileSize, path } = req.body;
-    let userId = req.USER.id;
+    // let userId = req.USER.id;
+    let userId = "64b6ae694fa46cd685e1d041";
 
     const userPath = userId + "/" + path;
     let pathArr = userPath.split("/");
@@ -32,15 +100,10 @@ app.post("/upload", async (req, res) => {
       }
       dir += pathArr[i] + "/";
     }
-
-    const regex = /^data:(?:[a-zA-Z]{0,})\/([a-zA-Z]+);base64,/; // Regular expression to match the data URL
-    const match = file.match(regex);
-    console.log(match);
-    const extension = match[1];
     const base64Data = file.split(";base64")[1];
-
-    fs.writeFileSync(
-      BASE_PATH + userPath + "/" + `${Date.now() + "." + extension}`,
+    const fullPath = BASE_PATH + userPath;
+    const data = fss.writeFile(
+      fullPath + "/" + `${fileName}`,
       base64Data,
       "base64"
     );
@@ -48,53 +111,52 @@ app.post("/upload", async (req, res) => {
     // JSON.stringify(JSON.parse(req))
     dataRes(res, { status: true }, STATUS.OK, "uploaded successfully");
   } catch (err) {
+    console.log(err);
     badReqRes(res, err);
   }
 });
-
-app.post("/getDirContent", async (req, res) => {
+app.get("/download", async (req, res) => {
   try {
-    let { path } = req.body;
-    let userId = req?.USER?.id;
-     userId = "64b6ae694fa46cd685e1d041"
-    const BASE_PATH = BASE_DIR + "/public/";
+    let { path } = req.query;
+    let splitPath = path.split("/");
+    let fileName = splitPath[splitPath.length - 1];
+
+    // let userId = req.USER.id;
+    let userId = "64b6ae694fa46cd685e1d041";
+
     const userPath = userId + "/" + path;
+
     const fullPath = BASE_PATH + userPath;
-    const data = await fss.readdir(fullPath);
-    console.log(process.cwd());
-    const dirContent = [];
-    for (let i = 0; i < data.length; i++) {
-      let obj = {};
-      obj.name = data[i];
-      const stat = await fss.stat(fullPath + "/" + data[i]);
-      if (stat.isFile()) obj.type = "FILE";
-      if (stat.isDirectory()) obj.type = "DIR";
-      obj.size = stat.size;
-      stat.birthtime = stat.birthtime;
 
-      dirContent.push(obj);
-    }
+    res.download(fullPath, fileName, (err) => {
+      if (err) {
+        console.log(err);
+        badReqRes(res, err, "failed");
+      }
+    });
 
-    okRes(res, dirContent);
+    // dataRes(res, { status: true }, STATUS.OK, "uploaded successfully");
   } catch (err) {
-    console.log(err)
-    notFoundRes(res, "not found");
+    console.log(err);
+    badReqRes(res, err);
   }
 });
- 
-app.post("/createDir", async (req, res) => {
+app.post("/rename", async (req, res) => {
   try {
-let {path} = req.body;
-let userId = req.USER.id
-const userPath = userId + "/" + path;
-const fullPath = BASE_PATH + userPath;
-const fs = await fss.mkdir(fullPath);
+    let { path , newPath } = req.body;
+    // let userId = req.USER.id
+    let userId = "64b6ae694fa46cd685e1d041";
+    const userPath = userId + "/" + path;
+    const fullPath = BASE_PATH + userPath;
+    const fullPathNew = BASE_PATH + userId + "/" + newPath ;
+    console.log(fullPath , fullPathNew);
+    const fs = await fss.rename(fullPath,fullPathNew);
 
-okRes(res, {success:true})
 
-
+    okRes(res, { success: true });
   } catch (err) {
-    badReqRes(res,err)
+    console.log(err);
+    badReqRes(res, err);
   }
 });
 

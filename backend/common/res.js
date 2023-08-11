@@ -42,13 +42,12 @@ const RES = {
         status: false,
         message: message == null ? err.message : message, 
       }),
-  badReqRes: (res, err) =>
+  badReqRes: (res, err ,message=null) =>
     res
       .status(STATUS.BAD_REQ)
       .json({
         status: true,
         message: message == null ? err.message : message,
-        data,
       }),
   unAuthRes: (res, message = null) =>
     res

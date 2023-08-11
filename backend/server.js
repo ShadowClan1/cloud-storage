@@ -2,8 +2,6 @@ const express = require("express");
 const CONFIG = require("./config/config");
 const app = express();
 global.BASE_DIR = __dirname;
-const fs = require("fs");
-const fss = require("fs/promises");
 const connectToDB = require("./db");
 require("dotenv").config();
 app.use(express.static("/public"));
