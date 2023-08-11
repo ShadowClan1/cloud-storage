@@ -79,3 +79,25 @@ export const downloadAxios = async (path) => {
     console.log(err);
   }
 };
+export const deleteAxios = async (path) =>{
+  try {
+  const res = await axios.post("http://localhost:5000/api/fs/delete", {path} );
+
+  if (res.status == 200) {
+    return res.data;
+  }
+} catch (err) {
+  console.log(err);
+}
+}
+export const renameAxios = async (path, newPath) =>{
+  try {
+  const res = await axios.post("http://localhost:5000/api/fs/rename", {path, newPath} );
+
+  if (res.status == 200) {
+    return res.data;
+  }
+} catch (err) {
+  console.log(err);
+}
+}

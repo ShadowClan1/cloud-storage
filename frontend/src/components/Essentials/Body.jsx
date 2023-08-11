@@ -6,6 +6,7 @@ import { useRef } from "react";
 
 const Body = () => {
   const [content, setcontent] = useState([]);
+  const [updateData, setUpdateData] = useState(false);
   const baseDir = [{ name: "..", type: "DIR" }];
   const [open, setOpen] = useState(false);
   const [path, setPath] = useState("");
@@ -19,7 +20,7 @@ const Body = () => {
   useEffect(() => {
     console.log(path);
     dirContent(path);
-  }, [path]);
+  }, [path, updateData]);
 
   const dirContent = async (path) => {
     const data = await getDirContent(path);
@@ -50,7 +51,7 @@ const Body = () => {
     const data = await createDirAxios(path + "/" + createFolder.dirName);
 
     if (data) {
-      setPath((prev) => prev + "/");
+      setUpdateData(prev=>!prev)
 
       setOpen(false);
     }
@@ -71,7 +72,7 @@ const Body = () => {
       });
       if (res.status == true) {
         setFile({ details: null, nameVisibility: false });
-        setPath((prev) => prev + "/");
+        setUpdateData(prev=>!prev)
       }
     };
 
@@ -156,11 +157,11 @@ const Body = () => {
           {content.map((e) => {
             return (
               <div
-                onClick={() => {
+                onDoubleClick={() => {
                 if(e.type == 'DIR')  setPathFun(e.name);
                 }}
               >
-                <File type={e.type} fileName={e.name} path={path} />
+                <File type={e.type} fileName={e.name} path={path} setUpdateData={setUpdateData} />
               </div>
             );
           })}

@@ -7,7 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-export default function FormDialog({open, setOpen, onChange, onClick, title,body, label}) {
+export default function FormDialog({open, setOpen, onChange, onClick, title,body, label, button}) {
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -42,7 +42,7 @@ export default function FormDialog({open, setOpen, onChange, onClick, title,body
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={onClick}>create</Button>
+          <Button onClick={onClick}>{button ? button :"create"}</Button>
         </DialogActions>
       </Dialog>
     </div>
